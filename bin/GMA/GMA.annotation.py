@@ -2,8 +2,9 @@
 
 import sys
 import re
-'''
 import subprocess as sub
+
+'''
 import os
 
 abs_path = os.path.split(os.path.abspath(sys.argv[0]))[0]
@@ -21,7 +22,20 @@ try:
 except:
     print( f'GMA.annotation.py [gtf file] [out dir] ' ,file=sys.stderr)
     sys.exit()
+# Add a test for the gtf file, if it's compressed, decompress it and set the file name to the decompressed file
+# if the file is not compressed, just set the file name to the file name
 
+def test_gtf(gtfF):
+    if re.search('.gz$',gtfF):
+        print(f"Decompressing ...", file=sys.stderr)
+        cmd = f"gunzip -c {gtfF} > {gtfF.replace('.gz','')}"
+        sub.run(cmd, shell=True)
+        out = gtfF.replace('.gz','')
+        return out
+    else:
+        return open(gtfF, 'r')
+
+gtfF = test_gtf(gtfF)
 
 def field(line) :
     col = line.strip(";").split(";")
