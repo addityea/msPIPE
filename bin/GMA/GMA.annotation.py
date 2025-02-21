@@ -26,14 +26,13 @@ except:
 # if the file is not compressed, just set the file name to the file name
 
 def test_gtf(gtfF):
-    if re.search('.gz$',gtfF):
+    if re.search('.gz$', gtfF):
         print(f"Decompressing ...", file=sys.stderr)
-        cmd = f"gunzip -c {gtfF}"
-        p = sub.Popen(cmd, shell=True, stdout=sub.PIPE, stderr=sub.PIPE)
-        out, err = p.communicate()
-        return out
+        cmd = f"gunzip -c {gtfF} > {gtfF[:-3]}"
+        sub.run(cmd, shell=True, check=True)
+        return gtfF[:-3]
     else:
-        return open(gtfF, 'r')
+        return gtfF
 
 gtfF = test_gtf(gtfF)
 
