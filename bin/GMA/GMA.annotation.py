@@ -28,9 +28,9 @@ except:
 def test_gtf(gtfF):
     if re.search('.gz$',gtfF):
         print(f"Decompressing ...", file=sys.stderr)
-        cmd = f"gunzip -c {gtfF} > {gtfF.replace('.gz','')}"
-        sub.run(cmd, shell=True)
-        out = gtfF.replace('.gz','')
+        cmd = f"gunzip -c {gtfF}"
+        p = sub.Popen(cmd, shell=True, stdout=sub.PIPE, stderr=sub.PIPE)
+        out, err = p.communicate()
         return out
     else:
         return open(gtfF, 'r')
