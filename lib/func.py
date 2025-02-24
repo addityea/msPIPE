@@ -67,10 +67,21 @@ def UCSC_download(ucsc_name, f , refD):
     if f == 'fa':
         file_name = f'{ucsc_name}.fa.gz'
     elif f == 'gtf':
-        file_name = f'genes/{ucsc_name}.ncbiRefSeq.gtf.gz'
+        file_name = f'{ucsc_name}.genes.gtf.gz'
 
     #download file
-    cmd = f'wget https://hgdownload.soe.ucsc.edu/goldenPath/{ucsc_name}/bigZips/{file_name} -P {refD} -o {refD}/log.download_{f}.txt'
+    if ucsc_name.startswith("GC"):
+        # Remove all characters after the last _
+        ucsc_name_strip = ucsc_name[:ucsc_name.rfind('_')]
+        # Generate path based on the UCSC name
+        ref_path = f'https://hgdownload.soe.ucsc.edu/hubs/{ucsc_name[0:3]}/{ucsc_name[4:7]}/{ucsc_name[7:10]}/{ucsc_name[10:13]}/{ucsc_name_strip}/'
+        print(ref_path)
+        if f == 'fa':
+            cmd = f'wget {ref_path}{ucsc_name_strip}.fa.gz -O {refD}/{file_name} -o {refD}/log.download_{f}.txt'
+        elif f == 'gtf':
+            cmd = f'wget {ref_path}genes/{ucsc_name}.ncbiGene.gtf.gz -O {refD}/{file_name} -o {refD}/log.download_{f}.txt'
+        else:
+            cmd = f'wget https://hgdownload.soe.ucsc.edu/goldenPath/{ucsc_name}/bigZips/{file_name} -O {refD}/{file_name} -o {refD}/log.download_{f}.txt'
     call_return =0
     call_return = sub.call(cmd, shell=True)
 
@@ -80,6 +91,3 @@ def UCSC_download(ucsc_name, f , refD):
         file_name = file_name.split("/")[-1]
         sub.call(f'gzip -d {refD}/{file_name}', shell=True)
         return call_return
-
-
-
