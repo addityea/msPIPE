@@ -51,12 +51,12 @@ geneF = open(outD + "/gene.bed", 'w')
 
 
 for l in open(gtfF , 'r'):
+
+    if l[0] == "#" : continue
     e = l.rstrip().split("\t")
     ch = e[0]
     start = int(e[3]) -1
     end = e[4]
-
-    if l[0] == "#" : continue
     opt = field("".join(e[8:]))
     # filtering
     if e[2] == 'transcript':
