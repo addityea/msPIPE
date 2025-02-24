@@ -2,8 +2,8 @@ FROM ubuntu:18.04
 
 LABEL description="methyl-data analysis pipeline"
 ENV TZ=Europe/Stockholm
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update && apt-get install -y \
