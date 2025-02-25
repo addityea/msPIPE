@@ -1,6 +1,9 @@
-# msPIPE
+# msPIPE2
 - Methylation analysis pipeline for WGBS data
 
+Originates from the repo: https://github.com/jkimlab/msPIPE.git
+
+Several bug fixes and updates were done and hence instead of opening a pull request, this version exists as `msPIPE2`
 
 ## Requirements
 
@@ -11,10 +14,12 @@
 - [bowtie](http://bowtie-bio.sourceforge.net/index.shtml), [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 - [Bismark](https://github.com/FelixKrueger/Bismark)
 - [BS-Seeker2](https://github.com/BSSeeker/BSseeker2)
-- Other required R packages can be installed via msPIPE/bin/script/Package_install.R.
+
+**Using Docker is the way to go!**
+
 <br />
 
-*Or you can use msPIPE on docker without having to prepare the environment.* ***\< Recommended\>***  
+*Or you can use msPIPE2 on docker without having to prepare the environment.* ***\< Recommended\>***  
 :point_right: [HOW TO USE msPIPE on docker](#using-docker) ![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?&logo=Docker&logoColor=white)
 <br />
 <br />
@@ -23,7 +28,7 @@
 ## Download
 
 ```
-git clone https://github.com/jkimlab/msPIPE.git
+git clone https://github.com/addityea/msPIPE2.git
 ```
 
 
@@ -337,4 +342,5 @@ docker build -t jkimlab/mspipe:latest .
     
  ## CONTACT
 
-[bioinfolabkr@gmail.com](mailto:bioinfolabkr@gmail.com)
+[aditya.singh@nbis.se](mailto:aditya.singh@nbis.se)
+
