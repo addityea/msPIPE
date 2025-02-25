@@ -20,8 +20,9 @@ print(package_name)
 index<-grep(assembly_version,av_gen$pkgname);
 
 # install package
+.libPaths(c("/home/user/Rlibs", .libPaths()))
 if(!require(package_name,character.only = TRUE)) {
-	BiocManager::install(package_name,character.only = TRUE)
+	BiocManager::install(package_name,character.only = TRUE, ask = FALSE)
 }
 library(package_name,character.only = TRUE);
 

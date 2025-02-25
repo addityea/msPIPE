@@ -114,6 +114,7 @@ COPY lib /msPIPE/lib
 COPY bin /msPIPE/bin
 COPY msPIPE.py /msPIPE/
 ENV PATH=/msPIPE:$PATH:/usr/local/bin/
+ENV R_LIBS_USER="/home/user/Rlibs"
 RUN mkdir -p /work_dir
 
 WORKDIR /work_dir
