@@ -77,11 +77,11 @@ def UCSC_download(ucsc_name, f , refD):
         ref_path = f'https://hgdownload.soe.ucsc.edu/hubs/{ucsc_name[0:3]}/{ucsc_name[4:7]}/{ucsc_name[7:10]}/{ucsc_name[10:13]}/{ucsc_name_strip}/'
         print(ref_path)
         if f == 'fa':
-            cmd = f'wget {ref_path}{ucsc_name_strip}.fa.gz -O {refD}/{file_name} -o {refD}/log.download_{f}.txt'
+            cmd = f'wget --no-check-certificate {ref_path}{ucsc_name_strip}.fa.gz -O {refD}/{file_name} -o {refD}/log.download_{f}.txt'
         elif f == 'gtf':
-            cmd = f'wget {ref_path}genes/{ucsc_name}.ncbiGene.gtf.gz -O {refD}/{file_name} -o {refD}/log.download_{f}.txt'
+            cmd = f'wget --no-check-certificate {ref_path}genes/{ucsc_name}.ncbiGene.gtf.gz -O {refD}/{file_name} -o {refD}/log.download_{f}.txt'
         else:
-            cmd = f'wget https://hgdownload.soe.ucsc.edu/goldenPath/{ucsc_name}/bigZips/{file_name} -O {refD}/{file_name} -o {refD}/log.download_{f}.txt'
+            cmd = f'wget --no-check-certificate https://hgdownload.soe.ucsc.edu/goldenPath/{ucsc_name}/bigZips/{file_name} -O {refD}/{file_name} -o {refD}/log.download_{f}.txt'
     call_return =0
     call_return = sub.call(cmd, shell=True)
 
