@@ -37,6 +37,8 @@ def make_argparser():
 	parser.add_argument('--skip_DMR', help = 'skip the DMR analysis', action='store_true')
 	parser.add_argument('--skip_VIS', help = 'skip the Visualization step', action='store_true')
 	
+	# Add an argument to get accession ID for the MethylSeekR organism
+	parser.add_argument('--idms', '-i', type=str, metavar='str', help='MethylSeekR organism ID')
 	
 	return parser
 
@@ -712,7 +714,10 @@ def GMA(outD, refD):
 		param_file = f'{resultD}/params.txt'
 		sample_names = list(SAMPLE.keys())
 
-		p_line = f'@REF_NAME\n{REF.ucsc_name}\n\n@REF_FA\n{REF.fastaF}\n\n@GENE_GTF\n{REF.annotF}\n\n'
+		if args.idms:
+			p_line = f'@REF_NAME\n{args.idms}\n\n@REF_FA\n{REF.fastaF}\n\n@GENE_GTF\n{REF.annotF}\n\n'
+		else:
+			p_line = f'@REF_NAME\n{REF.ucsc_name}\n\n@REF_FA\n{REF.fastaF}\n\n@GENE_GTF\n{REF.annotF}\n\n'
 		for sample in sample_names:
 			p_line += f'@{sample}\n'
 			for lib in SAMPLE[sample].keys():
@@ -891,7 +896,7 @@ def step_DMR(outD):
 
 			##get methylation Levels on promoter region
 				intersect_promoterF = f'{analD}/intersection.DMR2Promoter.txt'
-				cmd_intersect = f'bedtools intersect -wa -wb -a {promoterF} -b {reformF} > {intersect_promoterF}'
+				cmd_intersect = f'awk \'NR==1{{if($1 ~ /^chr/) next}}1\' {reformF} > {reformF}_noHead.bed && bedtools intersect -wa -wb -a {promoterF} -b {reformF}_noHead.bed > {intersect_promoterF}'
 				subproc(cmd_intersect, "stdout",log_proc)
 
 
@@ -940,7 +945,7 @@ def step_DMR(outD):
 		
 			##get methylation Levels on promoter region
 				intersect_promoterF = f'{analD}/intersection.DMC2Promoter.txt'
-				cmd_intersect = f'bedtools intersect -wa -wb -a {promoterF} -b {analD}/reform.DMC_q{args.qvalue}.bed > {intersect_promoterF}'
+				cmd_intersect = f'awk \'NR==1{{if($1 ~ /^chr/) next}}1\' {analD}/reform.DMC_q{args.qvalue}.bed > {analD}/reform.DMC_q{args.qvalue}_noHead.bed && bedtools intersect -wa -wb -a {promoterF} -b {analD}/reform.DMC_q{args.qvalue}_noHead.bed > {intersect_promoterF}'
 				subproc(cmd_intersect, "stdout",log_proc)
 
 

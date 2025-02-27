@@ -28,7 +28,7 @@ colnames(all_methlevel) <- c("context", "level")
 genomic_context <- data.frame(levels(factor(all_methlevel$context)))
 colnames(genomic_context)<- c("context")
 
-for(i in seq(1,5)){
+for(i in seq_len(nrow(genomic_context))){
   genomic_context$avg_level[i] <- mean(all_methlevel$level[
     all_methlevel$context==genomic_context$context[i]])
 }

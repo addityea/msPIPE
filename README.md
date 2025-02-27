@@ -15,15 +15,7 @@ Several bug fixes and updates were done and hence instead of opening a pull requ
 - [Bismark](https://github.com/FelixKrueger/Bismark)
 - [BS-Seeker2](https://github.com/BSSeeker/BSseeker2)
 
-**Using Docker is the way to go!**
-
-<br />
-
-*Or you can use msPIPE2 on docker without having to prepare the environment.* ***\< Recommended\>***  
-:point_right: [HOW TO USE msPIPE on docker](#using-docker) ![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?&logo=Docker&logoColor=white)
-<br />
-<br />
-
+**Using Docker is the way to go for msPIPE2**
 
 ## Download
 
@@ -31,14 +23,67 @@ Several bug fixes and updates were done and hence instead of opening a pull requ
 git clone https://github.com/addityea/msPIPE2.git
 ```
 
+## Running using Docker
 
+### Building msPIPE2 docker image
 
-## Running
-#### Running command
 ```
-/PATH/TO/msPIPE/msPIPE.py -p params.conf -o OUTDIR 
+git clone https://github.com/addityea/msPIPE2.git
+cd msPIPE
+docker build -t saditya88/mspipe2:latest .
 ```
+    
+- Or you can pull docker image from the docker hub
+    ```
+    docker pull saditya88/mspipe2:latest
+    ```
 
+### Preparing an input parameter file for Docker
+ - The parameter file must be written based on the internal path of the docker container and placed within the output dir.
+ - Mount the volumes with '-v' options to deliver input data and receive output results.
+ - params_docker.conf  
+    ```
+    [DMR]
+    ANALYSIS1 = 24M, 3M
+
+    [REFERENCE]
+    UCSC_NAME = mm10
+
+    [LIB1]
+    SAMPLE_NAME = 24M
+    LIB_NAME = 24M_rep1
+    LIB_TYPE = P
+    FILE_1 = /msPIPE/data/SRX6589858_1.fastq.gz
+    FILE_2 = /msPIPE/data/SRX6589858_2.fastq.gz
+
+    [LIB2]
+    SAMPLE_NAME = 24M
+    LIB_NAME = 24M_rep2
+    LIB_TYPE = P
+    FILE_1 = /msPIPE/data/SRX6589859_1.fastq.gz
+    FILE_2 = /msPIPE/data/SRX6589859_2.fastq.gz
+    
+    ...
+    
+    
+    ```
+
+### Running pipeline on Docker
+    
+ ```
+ #docker run -v [local path]:[docker path] [docker image name] [msPIPE command]
+
+ docker run -v /PATH/TO/LOCAL/Rlibs:/home/user/Rlibs -v /PATH/TO/INPUT/DATA:/msPIPE/data:ro -v /PATH/TO/REUSABLE/REFERENCE:/msPIPE/reference -v /PATH/TO/OUTDIR:/work_dir/ jkimlab/mspipe:latest msPIPE.py -p params_docker.conf -o result
+ ```
+ 
+ - Mount the volumes with '-v' options to deliver input data and receive output results.
+    - input data dir → /msPIPE/data
+    - reusable references dir → /msPIPE/reference
+    - output dir → /work_dir
+ - All local paths to mount volumes are must be expressed as absolute paths.
+ - Replace the '/PATH/TO/*' with a directory path on your local server.
+ 
+ <br />
 
 #### Preparing an input parameter file
 The parameter file must contain information necessary for pipeline execution.
@@ -67,27 +112,29 @@ The parameter file must contain information necessary for pipeline execution.
 ### Additional options  
 #### msPIPE options  
  ```
- usage: msPIPE.py [-h] --param params.conf --out PATH [--core int] [--qvalue float] [--skip_trimming] [--program bismark or bs2]
-                            [--bsmooth] [--skip_mapping] [--skip_calling] [--calling_data PATH] [--skip_GMA] [--skip_DMR]
+usage: msPIPE.py [-h] --param params.conf --out PATH [--core int] [--qvalue float] [--window int] [--skip_trimming] [--program bismark or bs2] [--bsmooth] [--skip_mapping] [--skip_calling]
+                 [--calling_data PATH] [--skip_GMA] [--skip_DMR] [--skip_VIS] [--idms str]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  --param params.conf, -p params.conf
+  --param, -p params.conf
                         config format parameter file
-  --out PATH, -o PATH   output directory
-  --core int, -c int    core (default:5)
-  --qvalue float, -q float
-                        q-value cutoff (default:0.5)
+  --out, -o PATH        output directory
+  --core, -c int        core (default:5)
+  --qvalue, -q float    q-value cutoff (default:0.5)
+  --window, -w int      window size for "CpG_methylLev_win.bed" (default:100000)
   --skip_trimming       skip the trimgalore trimming
   --program bismark or bs2
                         program option for mapping & calling
   --bsmooth             use bsmooth for DMR analysis
   --skip_mapping        skip the bismark mapping
   --skip_calling        skip the methylation calling
-  --calling_data PATH, -m PATH
+  --calling_data, -m PATH
                         methylCALL directory
   --skip_GMA            skip the Gene-Methyl analysis
   --skip_DMR            skip the DMR analysis
+  --skip_VIS            skip the Visualization step
+  --idms, -i str        MethylSeekR organism ID
 
  ```
  
@@ -275,71 +322,21 @@ If DMC/DMR analysis is performed, `DMR` directory will be created in `Analysis` 
 		* DMR_gene.GOresult.pdf : Plots of GO enrichment test for genes with DMRs from BSmooth using g:Profiler 
 ___
 
-## Using Docker
 
-### Building msPIPE docker image
+## Fixes and updates
 
-```
-git clone https://github.com/jkimlab/msPIPE.git
-cd msPIPE
-docker build -t jkimlab/mspipe:latest .
-```
-    
-- Or you can pull docker image from the docker hub
-    ```
-    docker pull jkimlab/mspipe:latest
-    ```
+- The genome download system only supported `UCSC golden genomes`, now users can provide other IDs which start with `GCF` or similar. Remember to provide full accession including the version number.
+- `MethylSeekR` would always fail for non-golden genomes, added option to provide separate ID for this (`--idms/ -i`)
+- Some `Python` scripts were running into erros as they would try processing the header, added a skip function in case of a header
+- On similar theme, `bedtools` was called on `bed` files but these `bed` files did not follow the standards and had a header, added `awk` function to fix this
+- Some scripts were using hard coded limits for loops, which would break the run if the files didn't have the same number of variables, fixed by generating length based on the file
+- The `Dockerfile` was using static version of `Bismark` and `BSseeker`, cached inside the repo. Removed the cache version and now sourcing the latest one.
+- The original Docker image was using `samtools` chromosome sorting, which is incompatible. Fixed by simply using newer script.
+- The program was trying to install packages inside the Docker image without mounting any writeable `user libs`
+- Several errors across several scripts that would break the run but were disposable are now in `try - catch`
+- `gProfiler` will break the run if `organism` not found, added check and skip
+- `Circos` plots would fail in case the previous `LMRs`/ `UMRs` failed and this would break the run, fixed by skipping these lines, if not found
 
-### Preparing an input parameter file for Docker
- - The parameter file must be written based on the internal path of the docker container and placed within the output dir.
- - Mount the volumes with '-v' options to deliver input data and receive output results.
- - params_docker.conf  
-    ```
-    [DMR]
-    ANALYSIS1 = 24M, 3M
-
-    [REFERENCE]
-    UCSC_NAME = mm10
-
-    [LIB1]
-    SAMPLE_NAME = 24M
-    LIB_NAME = 24M_rep1
-    LIB_TYPE = P
-    FILE_1 = /msPIPE/data/SRX6589858_1.fastq.gz
-    FILE_2 = /msPIPE/data/SRX6589858_2.fastq.gz
-
-    [LIB2]
-    SAMPLE_NAME = 24M
-    LIB_NAME = 24M_rep2
-    LIB_TYPE = P
-    FILE_1 = /msPIPE/data/SRX6589859_1.fastq.gz
-    FILE_2 = /msPIPE/data/SRX6589859_2.fastq.gz
-    
-    ...
-    
-    
-    ```
-
-### Running pipeline on Docker
-    
- ```
- #docker run -v [local path]:[docker path] [docker image name] [msPIPE command]
-
- docker run -v /PATH/TO/INPUT/DATA:/msPIPE/data:ro -v /PATH/TO/REUSABLE/REFERENCE:/msPIPE/reference -v /PATH/TO/OUTDIR:/work_dir/ jkimlab/mspipe:latest msPIPE.py -p params_docker.conf -o result
- ```
- 
- - Mount the volumes with '-v' options to deliver input data and receive output results.
-    - input data dir → /msPIPE/data
-    - reusable references dir → /msPIPE/reference
-    - output dir → /work_dir
- - All local paths to mount volumes are must be expressed as absolute paths.
- - Replace the '/PATH/TO/*' with a directory path on your local server.
- 
- 
- 
- <br />
-
-    
  ## CONTACT
 
 [aditya.singh@nbis.se](mailto:aditya.singh@nbis.se)

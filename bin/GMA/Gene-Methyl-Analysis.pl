@@ -116,8 +116,8 @@ while(<FPARAM>){
 close(FPARAM);
 
 `faSize -detailed $ref_file > $out_dir/ref.size`;
-`grep -v "_" $out_dir/ref.size | awk '{print \$1 \"\t0\t\" \$2 \"\t.\tgvar\"}' - > $out_dir/Ideogram.bed`;
-`grep -v "_" $out_dir/ref.size | awk '{print \$1}' - > $out_dir/chr_list.txt`;
+`cat $out_dir/ref.size | awk '{print \$1 \"\t0\t\" \$2 \"\t.\tgvar\"}' - > $out_dir/Ideogram.bed`;
+`cat $out_dir/ref.size | awk '{print \$1}' - > $out_dir/chr_list.txt`;
 `$bedtools subtract -a $out_dir/Ideogram.bed -b $annot_dir/merge.gene.bed | cut -f1,2,3 - > $annot_dir/intergenic.bed`;
 
 `$Bin/GMA.Add_promoter_into_bed.pl $annot_dir/gene.bed > $annot_dir/tmp.Promoter_Genebody.bed`;
